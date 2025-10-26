@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>เลือกตำแหน่งที่ตั้ง</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body, html { height: 100%; margin: 0; font-family: Arial, sans-serif; }
+    #map { height: calc(100% - 70px); }
+    .toolbar { height: 70px; padding: 10px; display:flex; gap:8px; align-items:center; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.12); }
+    .btn { padding:8px 12px; border-radius:8px; border:1px solid #888; background:#f7f7f7; cursor:pointer; }
+    .btn.primary { background:#007bff; color:#fff; border-color: #0069d9; }
+    .coords { font-size:14px; }
+    .flex-right { margin-left:auto; display:flex; gap:8px; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div class="coords" id="coords">Lat: — , Lng: —</div>
+    <div class="flex-right">
+      <button class="btn" id="copyBtn">คัดลอกพิกัด</button>
+      <button class="btn" id="shareBtn">สร้างลิงก์แชร์</button>
+      <button class="btn primary" id="sendBtn">ส่งตำแหน่งที่ตั้ง</button>
+    </div>
+  </div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const qs = (name, fallback) => new URL(location.href).searchParams.get(name) || fallback;
+
+    const defaultLat = parseFloat(qs('lat', '13.7563'));
+    const defaultLng = parseFloat(qs('lng', '100.5018'));
+    const map = L.map('map').setView([defaultLat, defaultLng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+    const coordsEl = document.getElementById('coords');
+
+    function updateCoords(latlng) {
+      coordsEl.textContent = `Lat: ${latlng.lat.toFixed(6)} , Lng: ${latlng.lng.toFixed(6)}`;
+    }
+    updateCoords(marker.getLatLng());
+
+    marker.on('dragend', () => updateCoords(marker.getLatLng()));
+    map.on('click', e => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
+
+    document.getElementById('copyBtn').onclick = async () => {
+      const ll = marker.getLatLng();
+      await navigator.clipboard.writeText(`${ll.lat},${ll.lng}`);
+      alert('คัดลอกพิกัดแล้ว!');
+    };
+
+    document.getElementById('shareBtn').onclick = () => {
+      const ll = marker.getLatLng();
+      const url = `${location.origin}${location.pathname}?lat=${ll.lat}&lng=${ll.lng}`;
+      navigator.share ? navigator.share({ url }) : prompt('คัดลอกลิงก์นี้:', url);
+    };
+
+    document.getElementById('sendBtn').onclick = async () => {
+      const ll = marker.getLatLng();
+      const payload = { lat: ll.lat, lng: ll.lng, ts: new Date().toISOString() };
+      const webhookUrl = 'https://YOUR-N8N-DOMAIN/webhook/map-location'; // 👈 เปลี่ยนตรงนี้
+
+      try {
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
+      } catch {
+        alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
+      }
+    };
+  </script>
+</body>
+</html>
