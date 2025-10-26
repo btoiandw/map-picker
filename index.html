@@ -1,43 +1,53 @@
 <!doctype html>
 <html lang="th">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>เลือกตำแหน่งที่ตั้ง</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    body, html { height: 100%; margin: 0; font-family: Arial, sans-serif; }
-    #map { height: calc(100% - 70px); }
-    .toolbar { height: 70px; padding: 10px; display:flex; gap:8px; align-items:center; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.12); }
-    .btn { padding:8px 12px; border-radius:8px; border:1px solid #888; background:#f7f7f7; cursor:pointer; }
-    .btn.primary { background:#007bff; color:#fff; border-color: #0069d9; }
-    .coords { font-size:14px; }
-    .flex-right { margin-left:auto; display:flex; gap:8px; }
-  </style>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
 </head>
+
 <body>
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
   <div class="toolbar">
-    <div class="coords" id="coords">Lat: — , Lng: —</div>
+    <div class="coords" id="coords">Lat: — , Lng: — </div>
+    <div class="mo-mp">คลิกที่บริเวณที่ต้องการสอบถาม</div>
+
     <div class="flex-right">
       <button class="btn" id="copyBtn">คัดลอกพิกัด</button>
       <button class="btn" id="shareBtn">สร้างลิงก์แชร์</button>
       <button class="btn primary" id="sendBtn">ส่งตำแหน่งที่ตั้ง</button>
     </div>
   </div>
+  <button onclick="document.getElementById('dialogModal').showModal()">Open Dialog</button>
+
+  <dialog id="dialogModal">
+    <h2>Native Dialog Modal</h2>
+    <p>This is a more modern approach to creating a modal.</p>
+    <button onclick="document.getElementById('dialogModal').close()">Close</button>
+  </dialog>
+
   <div id="map"></div>
+
+
+
+
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const qs = (name, fallback) => new URL(location.href).searchParams.get(name) || fallback;
 
-    const defaultLat = parseFloat(qs('lat', '13.7563'));
-    const defaultLng = parseFloat(qs('lng', '100.5018'));
+    const defaultLat = parseFloat(qs('lat', '16.48014010030842'));
+    const defaultLng = parseFloat(qs('lng', '99.54879500429345'));
     const map = L.map('map').setView([defaultLat, defaultLng], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    }).addTo(map);//แมพได้แค่ Street View เท่านั้น ถ้าเป็นตัวอื่นจะเสียตังเพิ่ม
 
     const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
     const coordsEl = document.getElementById('coords');
@@ -65,19 +75,49 @@
     document.getElementById('sendBtn').onclick = async () => {
       const ll = marker.getLatLng();
       const payload = { lat: ll.lat, lng: ll.lng, ts: new Date().toISOString() };
-      const webhookUrl = 'https://YOUR-N8N-DOMAIN/webhook/map-location'; // 👈 เปลี่ยนตรงนี้
+      console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
 
-      try {
-        const resp = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
-      } catch {
-        alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
-      }
+      //const webhookUrl = 'https://YOUR-N8N-DOMAIN/webhook/map-location'; // 👈 เปลี่ยนตรงนี้
+
+      // try {
+      //   const resp = await fetch(webhookUrl, {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify(payload)
+      //   });
+      //   alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
+      // } catch {
+      //   alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
+      // }
     };
+
+    // Get necessary elements
+    const modal = document.getElementById("myModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.querySelector(".close-btn");
+
+    // Open modal function
+    function openModal() {
+      modal.style.display = "block";
+    }
+
+    // Close modal function
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Event listeners
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+
+    // Close when clicking outside the modal content
+    window.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
   </script>
 </body>
+
 </html>
