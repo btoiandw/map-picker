@@ -200,18 +200,18 @@
       const payload = { lat: ll.lat, lng: ll.lng, ts: new Date().toISOString() };
       console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
 
-      //const webhookUrl = 'https://YOUR-N8N-DOMAIN/webhook/map-location'; // 👈 เปลี่ยนตรงนี้
+      const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook-test/657c988c-3db6-4576-9c15-814bd86f96d1'; // 👈 เปลี่ยนตรงนี้
 
-      // try {
-      //   const resp = await fetch(webhookUrl, {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(payload)
-      //   });
-      //   alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
-      // } catch {
-      //   alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
-      // }
+      try {
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
+      } catch {
+        alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
+      }
     };
 
     // Get necessary elements
