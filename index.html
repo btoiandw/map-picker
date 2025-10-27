@@ -202,6 +202,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       console.log('URL Search Params:', window.location.search); // <-- เพิ่มบรรทัดนี้
       const userId = urlParams.get('s');
+
       console.log('Found userId:', userId); // <-- เพิ่มบรรทัดนี้
       // --- จบส่วน DEBUG ---
       const payload = {
@@ -212,7 +213,7 @@
       };
       console.log(payload);//ส่งเป็นละติจูด ลองติจูด และวันเวลา
 
-      const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook-test/657c988c-3db6-4576-9c15-814bd86f96d1'; // 👈 เปลี่ยนตรงนี้
+      const webhookUrl = 'https://cctv-test.cctv-bot.site/webhook/657c988c-3db6-4576-9c15-814bd86f96d1'; // 👈 เปลี่ยนตรงนี้
 
       try {
         const resp = await fetch(webhookUrl, {
