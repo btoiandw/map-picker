@@ -222,6 +222,7 @@
           body: JSON.stringify(payload)
         });
         alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
+        window.location.href = 'line://nv/chat';
       } catch {
         alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
       }
