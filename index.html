@@ -122,14 +122,29 @@
   /* Style the dialog element */
   dialog {
     border: 1px solid #888;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 2rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 80%;
+    text-align: center;
+    /* ✅ จัดกลางแนวตั้งแนวนอน */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  /* Style the native backdrop */
   dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(3px);
+  }
+
+  dialog h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ccc;
   }
 </style>
 
@@ -140,17 +155,14 @@
     <div class="mo-mp">คลิกที่บริเวณที่ต้องการสอบถาม</div>
 
     <div class="flex-right">
-      <button class="btn" id="copyBtn">คัดลอกพิกัด</button>
-      <button class="btn" id="shareBtn">สร้างลิงก์แชร์</button>
       <button class="btn primary" id="sendBtn">ส่งตำแหน่งที่ตั้ง</button>
     </div>
   </div>
-  <button onclick="document.getElementById('dialogModal').showModal()">Open Dialog</button>
 
   <dialog id="dialogModal">
-    <h2>Native Dialog Modal</h2>
+    <h2>การใช้งานเว็บไซต์</h2>
     <p>This is a more modern approach to creating a modal.</p>
-    <button onclick="document.getElementById('dialogModal').close()">Close</button>
+    <button class="btn close-btn" onclick="document.getElementById('dialogModal').close()">Close</button>
   </dialog>
 
   <div id="map"></div>
@@ -183,18 +195,6 @@
     marker.on('dragend', () => updateCoords(marker.getLatLng()));
     map.on('click', e => { marker.setLatLng(e.latlng); updateCoords(e.latlng); });
 
-    document.getElementById('copyBtn').onclick = async () => {
-      const ll = marker.getLatLng();
-      await navigator.clipboard.writeText(`${ll.lat},${ll.lng}`);
-      alert('คัดลอกพิกัดแล้ว!');
-    };
-
-    document.getElementById('shareBtn').onclick = () => {
-      const ll = marker.getLatLng();
-      const url = `${location.origin}${location.pathname}?lat=${ll.lat}&lng=${ll.lng}`;
-      navigator.share ? navigator.share({ url }) : prompt('คัดลอกลิงก์นี้:', url);
-    };
-
     document.getElementById('sendBtn').onclick = async () => {
       const ll = marker.getLatLng();
       // ดึง 's' (ที่เราตั้งค่ามาจาก Workflow 1) ออกจาก URL
@@ -222,16 +222,15 @@
           body: JSON.stringify(payload)
         });
         alert(resp.ok ? 'ส่งตำแหน่งเรียบร้อย!' : 'ส่งไม่สำเร็จ');
-        liff.closeWindow();
+        //liff.closeWindow();
       } catch {
         alert('ไม่สามารถส่งตำแหน่งได้ (อาจเป็นเพราะ CORS)');
       }
     };
 
-    // Get necessary elements
-    const modal = document.getElementById("myModal");
-    const openBtn = document.getElementById("openModalBtn");
-    const closeBtn = document.querySelector(".close-btn");
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('dialogModal').showModal();
+    });
 
     // Open modal function
     function openModal() {
@@ -244,15 +243,8 @@
     }
 
     // Event listeners
-    openBtn.addEventListener("click", openModal);
-    closeBtn.addEventListener("click", closeModal);
 
-    // Close when clicking outside the modal content
-    window.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        closeModal();
-      }
-    });
+    closeBtn.addEventListener("click", closeModal);
 
   </script>
 </body>
