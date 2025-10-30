@@ -134,14 +134,14 @@
     <h2>วิธีการใช้งาน</h2>
 
     <div id="stepsContainer">
-      <img id="stepImage" src="https://via.placeholder.com/400x200?text=ขั้นตอนที่+1">
-      <p id="stepText">1. เลือกจุดบนแผนที่ที่ต้องการสอบถาม</p>
+      <img id="stepImage">
+      <!-- <p id="stepText">1. เลือกจุดบนแผนที่ที่ต้องการสอบถาม</p>-->
     </div>
 
-    <div style="margin-top:1rem;display:flex;justify-content:space-between;">
+    <!--<div style="margin-top:1rem;display:flex;justify-content:space-between;">
       <button class="btn" id="prevStep" disabled>ก่อนหน้า</button>
       <button class="btn primary" id="nextStep">ถัดไป</button>
-    </div>
+    </div>-->
 
     <button class="btn primary" id="closeGuide" style="display:none;margin-top:1rem;">ปิด</button>
   </dialog>
@@ -197,61 +197,84 @@
     };
 
     // 🪄 ระบบ modal แนะนำการใช้งาน
+    // 📖 ชุดรูปภาพแนะนำการใช้งาน
     const steps = [
-      {
-        img: "https://via.placeholder.com/400x200?text=ขั้นตอนที่+1",
-        text: "1. เลือกจุดบนแผนที่ที่ต้องการสอบถาม"
-      },
-      {
-        img: "https://via.placeholder.com/400x200?text=ขั้นตอนที่+2",
-        text: "2. ปรับหมุดให้ตรงตำแหน่งที่ต้องการ"
-      },
-      {
-        img: "https://via.placeholder.com/400x200?text=ขั้นตอนที่+3",
-        text: "3. กดปุ่ม 'ส่งตำแหน่งที่ตั้ง' เพื่อส่งข้อมูล"
-      }
+      { img: "1.png", text: "1️⃣ เลือกจุดบนแผนที่ที่ต้องการสอบถาม" },
+      { img: "2.png", text: "2️⃣ คลิกที่หมุดเพื่อดูรายละเอียดของกล้องที่ต้องการ" },
+      { img: "3.png", text: "3️⃣ เมื่อเลือกตำแหน่งแล้ว กดปุ่ม “ส่งตำแหน่งที่ตั้ง”" },
+      { img: "4.png", text: "4️⃣ รอการยืนยันว่าได้ส่งข้อมูลเรียบร้อย" },
+      { img: "5.png", text: "5️⃣ ข้อมูลจะถูกส่งกลับไปยัง LINE ของคุณโดยอัตโนมัติ" }
     ];
 
+    // 📦 จัดการ modal
     const modal = document.getElementById('guideModal');
-    const stepImage = document.getElementById('stepImage');
-    const stepText = document.getElementById('stepText');
-    const nextBtn = document.getElementById('nextStep');
-    const prevBtn = document.getElementById('prevStep');
-    const closeBtn = document.getElementById('closeGuide');
+    const modalImg = document.createElement('img');
+    const modalText = document.createElement('p');
+    const nextBtn = document.createElement('button');
+    const closeBtn = document.createElement('button');
+
+    // สไตล์เบื้องต้น
+    modalImg.style.width = '100%';
+    modalImg.style.borderRadius = '10px';
+    modalText.style.marginTop = '10px';
+
+    const btnBase = `
+    margin-top: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+  `;
+
+    nextBtn.style = btnBase + 'background:#007bff;color:white;';
+    closeBtn.style = btnBase + 'background:#6c757d;color:white;display:none;';
+
+    nextBtn.textContent = 'ถัดไป';
+    closeBtn.textContent = 'ปิด';
+
+    modal.appendChild(modalImg);
+    modal.appendChild(modalText);
+    modal.appendChild(nextBtn);
+    modal.appendChild(closeBtn);
 
     let currentStep = 0;
 
+    // ฟังก์ชันแสดงแต่ละขั้น
     function showStep(index) {
-      stepImage.src = steps[index].img;
-      stepText.textContent = steps[index].text;
-      prevBtn.disabled = index === 0;
-      nextBtn.style.display = index === steps.length - 1 ? "none" : "inline-block";
-      closeBtn.style.display = index === steps.length - 1 ? "inline-block" : "none";
+      const step = steps[index];
+      modalImg.src = step.img;
+      modalText.textContent = step.text;
+
+      // ซ่อน/แสดงปุ่ม
+      if (index === steps.length - 1) {
+        nextBtn.style.display = 'none';
+        closeBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.style.display = 'inline-block';
+        closeBtn.style.display = 'none';
+      }
     }
 
-    nextBtn.addEventListener('click', () => {
+    // ปุ่ม “ถัดไป”
+    nextBtn.onclick = () => {
       if (currentStep < steps.length - 1) {
         currentStep++;
         showStep(currentStep);
       }
-    });
+    };
 
-    prevBtn.addEventListener('click', () => {
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    });
-
-    closeBtn.addEventListener('click', () => {
+    // ปุ่ม “ปิด”
+    closeBtn.onclick = () => {
       modal.close();
-    });
+    };
 
-    // เปิด modal เมื่อโหลดหน้าเว็บ
-    window.addEventListener('DOMContentLoaded', () => {
-      modal.showModal();
+    // เปิด modal เมื่อโหลดหน้า
+    window.onload = () => {
+      currentStep = 0;
       showStep(currentStep);
-    });
+      modal.showModal();
+    };
   </script>
 </body>
 
